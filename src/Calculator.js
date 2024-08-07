@@ -1,10 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './calculator.css';
+
 
 function Calculator() {
     const [input, setInput] = useState("");
     const [result, setResult] = useState("");
-    const [equalsClicked, setEqualsClicked] = useState(false);
+  const [equalsClicked, setEqualsClicked] = useState(false);
+  
+  const handleKeyPress = (event) => {
+    const { key } = event;
+    if ((key >= '0' && key <= '9') || key === '.') {
+      handleClick(key);
+    } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+      handleClick(key);
+    } else if (key === 'Enter' || key === '=') {
+      handleCalculate();
+    } else if (key === 'Backspace') {
+      handleClear();
+    } else if (key === 'Escape') {
+      setInput('');
+      setResult('');
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [input, result, equalsClicked]);
+
+  
 
 
     const handleClick = (value) => {
@@ -33,9 +59,13 @@ function Calculator() {
   // Function to evaluate the expression and calculate the result
   const handleCalculate = () => {
     try {
-      const evaluatedResult = eval(input); // Evaluate the input string (Note: eval can be dangerous if used improperly)
+      if ((input.includes('/0'))||(input.includes('0/'))) {
+        setResult('Error'); // Set result to 'Error' if division by zero is detected
+      } else {
+        const evaluatedResult = eval(input); // Evaluate the input string
         setResult(evaluatedResult); // Set the result state to the evaluated result
-        setEqualsClicked(true)
+        setEqualsClicked(true); // Set the equals clicked state
+      }
     } catch (error) {
       setResult('Error'); // If there's an error during evaluation, set the result to 'Error'
     }
